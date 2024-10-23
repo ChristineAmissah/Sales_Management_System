@@ -1,0 +1,16 @@
+<p>Enter details</p>
+<form method="post">
+    {% csrf_token %}
+    {{ form.product.label_tag }}
+    {{ form.product }}
+    <br>
+    {{ form.quantity_sold.label_tag }}
+    {{ form.quantity_sold }}
+    <br>
+    {{form.total_price.label_tag}}
+    {{form.total_price.hidden}}
+    <br>
+    <!-- <input type="text" name="total_price" value="{{ form.total_price.value }}"> -->
+
+    <button type="submit">Submit Sale</button>
+</form>

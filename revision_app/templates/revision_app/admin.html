@@ -7,63 +7,89 @@
 <h1>Welcome admin</h1>
 
 <h2>Dashboard Summary</h2>
-<p>Total Products: {{ total_products }}</p>
-<p>Total Stock: {{ total_stock }}</p>
-<p>Total Value: &#8373;{{ total_value }}</p>
-
+<p>Total Products Available: {{ total_products }}</p>
+<p>Total Stock Available: {{ total_stock }}</p>
+<p>Total Amount of Products: &#8373;{{ total_value|floatformat:2 }}</p>
+<p>Total Amount of Sales: &#8373;{{ total_sales|floatformat:2 }}</p>
 
 <form method="GET" action="">
-    <input type="text" name="search" placeholder="Search Products..." value="{{ request.GET.search }}">
+    <input type="text" name="q" placeholder="Search Products..." value="{{search_input}}">
     <button type="submit">Search</button>
 </form>
 
+
 <a href="{% url 'add-product' %}">Add product</a>
+
+<!-- Products Table -->
+<h3>Products List</h3>
 <table>
     <thead>
         <tr>
             <th>Number</th>
+            <th>Unique Key</th>
             <th>Product Name</th>
             <th>Price</th>
             <th>Quantity</th>
-            <th></th>
-            <th></th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         {% for product in products %}
         <tr>
             <td>{{ forloop.counter }}</td>
+            <td>{{ product.unique_key }}</td>
             <td>{{ product.product_name }}</td>
-            <td>{{ product.price }}</td>
+            <td>{{ product.price|floatformat:2 }}</td>
             <td>{{ product.stock }}</td>
-            <td><a href="{% url 'products' product.id %}">View</a></td>
-            <td><a href="{% url 'update-product' product.id %}">Edit</a></td>
-            <td><a href="{% url 'delete-product' product.id %}">Delete</a></td>
-
+            <td>
+                <!-- <a href="{% url 'products' product.id %}">View</a> -->
+                <a href="{% url 'update-product' product.id %}">Edit</a>
+                <a href="{% url 'delete-product' product.id %}">Delete</a>
+            </td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="4">No products available.</td>
+            <td colspan="6">No products available.</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<div class="pagination">
-    <span class="step-links">
-        {% if products.has_previous %}
-            <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ products.previous_page_number }}">previous</a>
-        {% endif %}
+<br>
+<a href="{% url 'generate_pdf' %}" class="btn btn-primary">Generate Sales Report</a>
 
-        <span class="current">
-            Page {{ products.number }} of {{ products.paginator.num_pages }}.
-        </span>
+<!-- Sales Table -->
+<h3>Sales List</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Number</th>
+            <th>Unique Key</th>
+            <th>Product</th>
+            <th>Quantity Sold</th>
+            <th>Total Price</th>
+            <th>Date Sold</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sale in sales %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ sale.unique_key }}</td>
+            <td>{{ sale.product }}</td>
+            <td>{{ sale.quantity_sold }}</td>
+            <td>{{ sale.total_price|floatformat:2 }}</td>
+            <td>{{ sale.date_sold }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">No sales available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}">next</a>
-            <a href="?page={{ products.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-
-    </span>
-</div>
+<!-- create users, priviledges -->
+<!-- every sales person should have his or her own logins, where they run a shift -->
+<!-- Table heding -->
+ <!-- User name on tbl -->

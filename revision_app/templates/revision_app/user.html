@@ -1,0 +1,79 @@
+{% extends 'revision_app/main.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container-fluid my-0 position-relative mx-0 px-0" style="padding-top: 56px; z-index: 1;">
+<div class="container-fluid mx-0 px-0 w-100">
+<div class="row">
+<div class="col-11"></div>
+
+<div class="d-flex mb-6 bg-warning justify-content-between text-align-center position-fixed" style="z-index: 1050; width: 91.78%;">
+    <h3></h3>
+    <h3 class="text-center text-white d-flex py-1">Users</h3>
+    <a href="{% url 'register' %}" class="btn btn-success">Create User</a>
+</div></div>
+
+<div class="container-fluid" style="padding-top: 55px;">
+<table class="table table-bordered my-3 w-100 text-center fs-5">
+    <thead>
+        <tr class="table-danger">
+            <th style="width: 1%;">Number</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Staff Status</th>
+            <th style="width: 20%;">Assign Group</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            
+            <td>
+                {% if user.is_staff %}
+                <span class="badge bg-success px-3" ">Staff</span>
+                {% else %}
+                <span class="badge bg-danger">Not Staff</span>
+                {% endif %}
+            </td>
+            <td>
+                <form method="post" action="{% url 'assign_group' user.id %}" class=" d-flex justify-content-center">
+                    {% csrf_token %}
+                    <select name="group" class="form-select w-20" style="width: 40%;">
+                        <option value="admin" {% if 'admin' in user.groups.all|stringformat:'s' %}selected{% endif %}>Admin</option>
+                        <option value="sales_person" {% if 'sales_person' in user.groups.all|stringformat:'s' %}selected{% endif %}>Salesperson</option>
+                    </select><span class="mx-2 fs-4"></span> 
+                    <button type="submit" class="btn btn-sm btn-primary">Assign Group</button>
+                </form>
+            </td>
+            <td>
+                <!-- Edit Button -->
+                <a href="{% url 'edit_user' pk=user.id %}" class="btn btn-success">Edit User</a><span class="mx-1 fs-4"></span> 
+
+                <a href="{% url 'change_password' pk=user.id %}" class="btn btn-warning">Change Password</a><span class="mx-1 fs-4"></span> 
+                
+                
+
+                <!-- Delete Button -->
+                <form method="post" action="{% url 'delete_user' user.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?');" style="display:inline;">Delete</button>
+                </form>
+            </td>
+            
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div></div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Management System</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css'  %}">
+</head>
+<body class="overflow-x-hidden">
+        <div class="container-fluid p-6">
+        <div class="row">
+          <!-- Side Bar -->
+            <div class="col-1 px-0" >
+                <div class=" text-start d-flex flex-column justify-content-between flex-shrink-0 p-3 text-white bg-dark position-fixed" style="height: 100vh; width: 8.33333333%;">
+        <hr>
+        <ul class="nav flex-column mb-auto" style="padding-top: 20px;">
+          <li class="nav-item">
+            <li>
+              {% if request.user.groups.exists %}
+            {% if request.user.groups.all.0.name == "admin" %}
+              <a href="{% url 'dashboard' %}" class="nav-link text-white">
+                Dashboard
+                {% endif %}
+                {% endif %}
+              </a>
+            </li>
+          <li>
+            {% if request.user.groups.exists %}
+            {% if request.user.groups.all.0.name == "admin" %}
+                <a href="{% url 'view-sales' %}" class="nav-link active">
+              Sales    
+            {% endif %}
+            {% endif %}
+              
+            </a>
+          </li>
+          <li>
+            {% if request.user.groups.exists %}
+            {% if request.user.groups.all.0.name == "admin" %}
+            <a href="{% url 'user' %}" class="nav-link text-white">
+              Users
+            {% endif %}
+            {% endif %}
+            </a>
+          </li>
+        </ul>
+        <hr>
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+            <strong>mdo</strong>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+            <li>
+              {% if request.user.is_authenticated %}
+                  <a href="{% url 'sales' %}" class="dropdown-item">
+              {% endif %}
+              Make Sales
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              {% if request.user.is_authenticated %}
+                      <a href="{% url 'logout' %}" class="dropdown-item">
+              {% endif %}
+                Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div></div>
+
+
+    
+    
+<div class="col-11 p-0">
+    <div class="container-fluid w-100 px-0 position-fixed"  style="z-index: 1050">
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark fixed-top">
+        <div class="container-fluid">
+          <a class="navbar-brand ms-3" href="#">
+            <strong>Welcome {{request.user.username|upper}}</strong></a>
+        </div>
+        {% if request.user.groups.exists %}
+            {% if request.user.groups.all.0.name == "admin" %}
+        <form method="GET" action="" class="bd-search  ms-6 d-flex justify-content-between" style="margin-right: 20px;">
+          <input class="form-control me-2" type="text" name="q" placeholder="Search..." value="{{search_input}}">
+          <button type="submit" class="btn btn btn-danger">Search</button>
+      </form>
+      {% endif %}
+            {% endif %}
+      </nav>
+    </div>
+      <div class="container-fluid">
+    {% block content %}
+
+
+    {% endblock %}</div>
+</div>    
+</div>
+<script src="{% static 'js/bootstrap.bundle.min.js'  %}"></script>
+</div>
+</body>
+</html>

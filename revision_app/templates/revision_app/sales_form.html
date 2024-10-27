@@ -1,16 +1,163 @@
-<p>Enter details</p>
-<form method="post">
-    {% csrf_token %}
-    {{ form.product.label_tag }}
-    {{ form.product }}
-    <br>
-    {{ form.quantity_sold.label_tag }}
-    {{ form.quantity_sold }}
-    <br>
-    {{form.total_price.label_tag}}
-    {{form.total_price.hidden}}
-    <br>
-    <!-- <input type="text" name="total_price" value="{{ form.total_price.value }}"> -->
+{% extends 'revision_app/main.html' %}
+{% load static %}
 
-    <button type="submit">Submit Sale</button>
-</form>
+{% block content %}
+<div class="container">
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+        <a href="{% url 'login'%}">Login </a>
+    {% endif %}
+
+    {% if request.user.groups.all.0.name == "admin" %}
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    {% endif %}
+
+    <h1>Welcome {{request.user.username|upper}}</h1>
+
+    <!-- Messages section - add this at the top of your form -->
+    <div id="messages-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <p>Enter details</p>
+    <form method="post" id="saleForm">
+        {% csrf_token %}
+
+        <!-- Manually render product field with data attributes -->
+        <div>
+            {{ form.product.label_tag }}
+            <select name="{{ form.product.name }}" id="id_product">
+                {% for product in form.fields.product.queryset %}
+                    <option value="{{ product.id }}" 
+                        data-stock="{{ product.stock }}" 
+                        data-price="{{ product.price }}">
+                        {{ product.product_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+
+        <!-- Quantity Field -->
+        <div>
+            {{ form.quantity_sold.label_tag }}
+            {{ form.quantity_sold }}
+        </div>
+        <br>
+
+        <!-- Product Details Display -->
+        <div id="productDetails" style="margin-top: 10px; padding: 10px; border: 1px solid #ccc;">
+            <p>Available Stock: <span id="stockDisplay">-</span></p>
+            <p>Unit Price: &#8373;<span id="priceDisplay">-</span></p>
+            <p>Total Price: &#8373;<span id="totalPriceDisplay">-</span></p>
+        </div>
+
+        <!-- Hidden input for total price -->
+        <input type="hidden" name="total_price" id="hiddenTotalPrice" value="0">
+
+        <button type="submit" class="btn btn-primary">Submit Sale</button>
+    </form>
+</div>
+
+
+<style>
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    .alert-dismissible {
+        position: relative;
+    }
+    .alert-dismissible .btn-close {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0.75rem 1.25rem;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+    }
+    #messages-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        max-width: 300px;
+    }
+</style>
+
+<!-- Your JavaScript here -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const productSelect = document.getElementById('id_product');
+        const stockDisplay = document.getElementById('stockDisplay');
+        const priceDisplay = document.getElementById('priceDisplay');
+        const totalPriceDisplay = document.getElementById('totalPriceDisplay');
+        const quantityInput = document.getElementById('id_quantity_sold');
+        const hiddenTotalPrice = document.getElementById('hiddenTotalPrice');
+
+        // Function to update product details (stock, price, total price)
+        function updateProductDetails() {
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const stock = selectedOption.getAttribute('data-stock');
+            const price = selectedOption.getAttribute('data-price');
+            const quantity = quantityInput.value || 0;
+
+            // Update stock and price in the DOM
+            stockDisplay.textContent = stock;
+            priceDisplay.textContent = price;
+
+            // Calculate total price
+            const totalPrice = (price * quantity).toFixed(2);
+            totalPriceDisplay.textContent = totalPrice;
+
+            // Update hidden total price input
+            hiddenTotalPrice.value = totalPrice;
+        }
+
+        // Trigger the update when the product or quantity is changed
+        productSelect.addEventListener('change', updateProductDetails);
+        quantityInput.addEventListener('input', updateProductDetails);
+
+        // Initialize product details when the page loads
+        updateProductDetails();
+    });
+
+    // Wait for the DOM to fully load
+    document.addEventListener('DOMContentLoaded', function () {
+        // Find all the alerts
+        const alerts = document.querySelectorAll('.alert');
+        
+        // Set a timeout to automatically hide alerts after 5 seconds
+        setTimeout(function() {
+            alerts.forEach(function(alert) {
+                alert.classList.remove('show');  // Bootstrap's "fade" and "show" classes are used for transitions
+                alert.classList.add('fade');     // Add the "fade" class to smoothly transition
+                setTimeout(function() {
+                    alert.remove();  // Finally, remove the alert from the DOM after the fade-out
+                }, 600); // Remove after the fade-out transition (500ms)
+            });
+        }, 6000);  // Adjust this time as needed (5000ms = 5 seconds)
+    });
+</script>
+{% endblock %}

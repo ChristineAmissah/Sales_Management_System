@@ -1,0 +1,48 @@
+{% extends 'revision_app/main.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid my-0 position-relative mx-0 px-0" style="padding-top: 56px; z-index: 1;">
+<div class="container-fluid mx-0 px-0 w-100">
+<div class="row">
+<div class="col-11"></div>
+
+<div class="d-flex mb-6 bg-warning justify-content-between text-align-center position-fixed" style="z-index: 1050; width: 91.78%;">
+    <h3></h3>
+    <h3 class="text-center text-white d-flex py-1">Sales List</h3>
+    <a href="{% url 'generate_pdf' %}" class="btn btn-success">Generate Sales Report</a>
+</div></div>
+<div class="container-fluid" style="padding-top: 55px;">
+<table class="table table-bordered my-3 w-100 text-center fs-5">
+    <thead>
+        <tr class="table-danger">
+            <th>Number</th>
+            <th>Unique Key</th>
+            <th>Product</th>
+            <th>Quantity Sold</th>
+            <th>&#8373;Total Price</th>
+            <th>Date Sold</th>
+            <th>Salesperson</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sale in sales %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ sale.unique_key }}</td>
+            <td>{{ sale.product }}</td>
+            <td>{{ sale.quantity_sold }}</td>
+            <td>{{ sale.total_price|floatformat:2 }}</td>
+            <td>{{ sale.date_sold }}</td>
+            <td>{{ sale.salesperson.username|capfirst }}
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">No sales available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table></div>
+</div>
+</div>
+{% endblock %}

@@ -25,6 +25,7 @@ class Products(models.Model):
         verbose_name_plural = 'Products'
         ordering = ['product_name']
 
+    
 
 class Sale(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE)

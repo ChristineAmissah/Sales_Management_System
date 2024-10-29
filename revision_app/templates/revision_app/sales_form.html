@@ -2,21 +2,24 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    {% if request.user.is_authenticated %}
-        <a href="{% url 'logout' %}">Logout</a>
-    {% else %}
-        <a href="{% url 'login'%}">Login </a>
-    {% endif %}
+<head><link rel="stylesheet" href="{% static 'css/bootstrap.css'  %}"></head>
+<body style="background-image: url('{% static 'img/pexels-mike-jones-9050572.jpg' %}'); background-size: cover; background-position: center; min-height: 100vh;">
+<div class="container-fluid my-0 position-relative mx-0 px-0" style="padding-top: 56px; z-index: 1;">
+    <div class="container-fluid mx-0 px-0 w-100">
+    <div class="row">
+    <div class="col-11"></div>
+    
+    <div class="d-flex mb-6 justify-content-center text-align-center position-fixed" style="z-index: 1050; width: 91.78%; background-color: rgba(39, 41, 35, 0.5);">
+        <h3></h3>
+        <h3 class="text-center text-white d-flex py-1">Make Sales</h3>
+    </div>
+</div></div></div>
 
-    {% if request.user.groups.all.0.name == "admin" %}
-        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
-    {% endif %}
-
-    <h1>Welcome {{request.user.username|upper}}</h1>
+<div class="container border-box w-80" style="margin-top: 20vh;">
+  
 
     <!-- Messages section - add this at the top of your form -->
-    <div id="messages-container">
+    <div id="messages-container" style="padding-top: 20px;">
         {% if messages %}
             {% for message in messages %}
                 <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
@@ -27,14 +30,13 @@
         {% endif %}
     </div>
 
-    <p>Enter details</p>
+    <p class="my-6 display-6 fw-bold header-bar d-flex justify-content-center mb-6" style="margin-bottom: 20px; color: #18641a;">Enter details</p>
     <form method="post" id="saleForm">
         {% csrf_token %}
-
-        <!-- Manually render product field with data attributes -->
-        <div>
-            {{ form.product.label_tag }}
-            <select name="{{ form.product.name }}" id="id_product">
+    
+        <div class="input-group my-0 py-0">
+            <span class="input-group-text fw-bold fs-5">{{ form.product.label_tag }}</span>
+            <select name="{{ form.product.name }}" id="id_product" class="form-select fs-5">
                 {% for product in form.fields.product.queryset %}
                     <option value="{{ product.id }}" 
                         data-stock="{{ product.stock }}" 
@@ -47,28 +49,34 @@
         <br>
 
         <!-- Quantity Field -->
-        <div>
-            {{ form.quantity_sold.label_tag }}
+        <!-- <div class="input-group my-0 py-0 fs-5r">
+            <span class="input-group-text fw-bold fs-4">{{ form.quantity_sold.label_tag }}</span>
             {{ form.quantity_sold }}
+        </div> -->
+
+        <div class="input-group my-0 py-0 fs-5r">
+            <span class="input-group-text fw-bold fs-5"><label for="id_quantity_sold">Quantity sold:</label></span>
+            <input type="number" name="quantity_sold" value="0" class="form-control fs-5" min="0" max="9223372036854775807" required="" id="id_quantity_sold">
         </div>
-        <br>
+       
 
         <!-- Product Details Display -->
-        <div id="productDetails" style="margin-top: 10px; padding: 10px; border: 1px solid #ccc;">
-            <p>Available Stock: <span id="stockDisplay">-</span></p>
-            <p>Unit Price: &#8373;<span id="priceDisplay">-</span></p>
-            <p>Total Price: &#8373;<span id="totalPriceDisplay">-</span></p>
+        <div id="productDetails" style="margin-top: 10px; padding: 10px; border: 4px solid #1f2020; border-radius: 10%; padding-left: 30px; background-color: rgba(255,255,255,0.5);">
+            <p class="fs-4" style="color: #1f2020;">Available Stock: <span id="stockDisplay">-</span></p>
+            <p class="fs-4" style="color: #1f2020;">Unit Price: &#8373;<span id="priceDisplay">-</span></p>
+            <p class="fs-4" style="color: #1f2020;">Total Price: &#8373;<span id="totalPriceDisplay">-</span></p>
         </div>
 
         <!-- Hidden input for total price -->
         <input type="hidden" name="total_price" id="hiddenTotalPrice" value="0">
 
-        <button type="submit" class="btn btn-primary">Submit Sale</button>
+        <button type="submit" class="btn btn-primary btn-lg text-mute w-100 fw-bold" style="margin-top: 20px; background-color: #412918; border: #6e5f4a;">Submit Sale</button>
     </form>
 </div>
 
 
 <style>
+
     .alert {
         padding: 15px;
         margin-bottom: 20px;
@@ -104,8 +112,18 @@
         z-index: 1000;
         max-width: 300px;
     }
-</style>
 
+    .form-control, .form-select {
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #151d1d;
+        box-shadow: 0 0 5px rgb(42, 43, 44);
+        outline:#6e5f4a;
+    }
+
+</style>
+</body>
 <!-- Your JavaScript here -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -160,4 +178,6 @@
         }, 6000);  // Adjust this time as needed (5000ms = 5 seconds)
     });
 </script>
+
+
 {% endblock %}

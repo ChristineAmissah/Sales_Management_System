@@ -2,22 +2,23 @@
 {% load static %}
 
 {% block content %}
+<body style="background-image: url('{% static 'img/pexels-tirachard-kumtanom-112571-733856.jpg' %}'); background-size: cover; background-position: center; min-height:100vh;">
 
-    <div class="container-fluid my-0 position-relative mx-0 px-0" style="padding-top: 56px; z-index: 1;">
+<div class="container-fluid my-0 position-relative mx-0 px-0" style="padding-top: 56px; z-index: 1;">
 <div class="container-fluid mx-0 px-0 w-100">
 <div class="row">
 <div class="col-11"></div>
 
-<div class="d-flex mb-6 bg-warning justify-content-between text-align-center position-fixed" style="z-index: 1050; width: 91.78%;">
+<div class="d-flex mb-6 justify-content-between text-align-center position-fixed" style="z-index: 1050; width: 91.78%; background-color: rgba(39, 41, 35, 0.5);">
     <h3></h3>
     <h3 class="text-center text-white d-flex py-1">Users</h3>
-    <a href="{% url 'register' %}" class="btn btn-success">Create User</a>
+    <span class="d-flex align-items-center"><a href="{% url 'register' %}" class="btn btn-success">Create User</a></span>
 </div></div>
 
 <div class="container-fluid" style="padding-top: 55px;">
-<table class="table table-bordered my-3 w-100 text-center fs-5">
+<table class="table table-bordered my-3 w-100 text-center fs-5 table-dark table-striped ">
     <thead>
-        <tr class="table-danger">
+        <tr class="table-light">
             <th style="width: 1%;">Number</th>
             <th>Username</th>
             <th>Email</th>
@@ -47,25 +48,25 @@
             <td>
                 <form method="post" action="{% url 'assign_group' user.id %}" class=" d-flex justify-content-center">
                     {% csrf_token %}
-                    <select name="group" class="form-select w-20" style="width: 40%;">
+                    <select name="group" class="form-select w-20" style="width: 40%; background-color: rgb(252, 255, 249);" >
                         <option value="admin" {% if 'admin' in user.groups.all|stringformat:'s' %}selected{% endif %}>Admin</option>
                         <option value="sales_person" {% if 'sales_person' in user.groups.all|stringformat:'s' %}selected{% endif %}>Salesperson</option>
                     </select><span class="mx-2 fs-4"></span> 
-                    <button type="submit" class="btn btn-sm btn-primary">Assign Group</button>
+                    <button type="submit" class="btn btn-sm fw-bold" style="background-color: rgba(104, 104, 87, 0.863); border: none;">Assign Group</button>
                 </form>
             </td>
             <td>
                 <!-- Edit Button -->
-                <a href="{% url 'edit_user' pk=user.id %}" class="btn btn-success">Edit User</a><span class="mx-1 fs-4"></span> 
+                <a href="{% url 'edit_user' pk=user.id %}" class="btn btn-success fw-bold">Edit User</a><span class="mx-1 fs-4"></span> 
 
-                <a href="{% url 'change_password' pk=user.id %}" class="btn btn-warning">Change Password</a><span class="mx-1 fs-4"></span> 
+                <a href="{% url 'change_password' pk=user.id %}" class="btn text-light fw-bold" style="background-color: rgb(185, 142, 1);">Change Password</a><span class="mx-1 fs-4"></span> 
                 
                 
 
                 <!-- Delete Button -->
                 <form method="post" action="{% url 'delete_user' user.id %}" style="display: inline;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?');" style="display:inline;">Delete</button>
+                    <button type="submit" class="btn text-light fw-bold" onclick="return confirm('Are you sure you want to delete {{user.username}} as a user?');" style="display:inline; background-color: brown;">Delete</button>
                 </form>
             </td>
             

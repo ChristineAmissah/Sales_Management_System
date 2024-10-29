@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from datetime import datetime
+from django.urls import reverse
 from django.contrib.auth.views import LoginView
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, TemplateView, FormView
 from django.urls import reverse_lazy
@@ -14,12 +15,11 @@ from django.db.models import Sum, F, Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from .forms import SalesForm
+from .forms import SalesForm, ProductForm
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from .forms import ChangePasswordForm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from django.db import transaction
@@ -39,14 +39,22 @@ class RegisterPage(FormView):
     redirect_authenticated_user = True
     success_url = reverse_lazy('dashboard')
 
+    
+
     def form_valid(self, form):
         """If the form is valid, save the new user and redirect to the dashboard."""
         user = form.save()  # Create the new user
+        messages.success(self.request, f"Account created successfully.")
         return super().form_valid(form)  # Redirect after successful creation
+
+    def form_invalid(self, form):
+        # Add custom error message for invalid form submission
+        messages.error(self.request, "Invalid Input.")
+        return super().form_invalid(form)
 
     def get_success_url(self):
         """Ensure admins are always redirected to the dashboard after registration."""
-        return reverse_lazy('dashboard')
+        return reverse_lazy('register')
 
 
 @method_decorator(unauthenicated_user, name='dispatch')
@@ -241,15 +249,27 @@ def change_password(request, pk):
         form = ChangePasswordForm(request.POST)
         if form.is_valid():
             new_password = form.cleaned_data['new_password']
-            user.password = make_password(new_password)  # Hash the new password
-            user.save()
-            return redirect('user') 
+            
+            # Check if the new password is the same as the old password
+            if check_password(new_password, user.password):
+                messages.error(request, "The new password cannot be the same as the current password.")
+            elif len(new_password) < 8:
+                messages.error(request, "The new password cannot be less than eight characters.")
+            else:
+                user.password = make_password(new_password)  # Hash the new password
+                user.save()
+                messages.success(request, f"Password for {user.username} was successfully updated!")
+                return redirect(reverse('change_password', kwargs={'pk': pk}))   # Redirect to the desired success page
+        else:
+            messages.error(request, "There was an error. Please correct the errors below.")
     else:
         form = ChangePasswordForm()
 
     return render(request, 'revision_app/change_password.html', {'form': form, 'user': user})
 
+
 @allowed_users(allowed_roles=['admin'])
+
 # Edit user view
 def edit_user(request, pk):  # Change 'user_id' to 'pk'
     user = get_object_or_404(User, id=pk)  # Use 'pk' to fetch the user
@@ -291,7 +311,8 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
 @method_decorator(allowed_users(allowed_roles=['admin']), name='dispatch')
 class CreateProduct(LoginRequiredMixin, CreateView):
     model = Products
-    fields = '__all__' #list all the items to the view
+    form_class = ProductForm  # Use the custom form
+    # fields = '__all__' #list all the items to the view
     success_url = reverse_lazy('dashboard')
     # template_name = 'base/add_products.html'
 
@@ -299,7 +320,8 @@ class CreateProduct(LoginRequiredMixin, CreateView):
 @method_decorator(allowed_users(allowed_roles=['admin']), name='dispatch')
 class UpdateProduct(LoginRequiredMixin, UpdateView):
     model = Products
-    fields = '__all__'
+    form_class = ProductForm
+    # fields = '__all__'
     success_url = reverse_lazy('dashboard')
 
 @method_decorator(allowed_users(allowed_roles=['admin']), name='dispatch')
@@ -307,6 +329,7 @@ class TaskDelete(LoginRequiredMixin, DeleteView):
     model = Products
     context_object_name = 'products'
     success_url = reverse_lazy('dashboard')
+
 
 # sales view
 class CreateSaleView(LoginRequiredMixin, CreateView):
@@ -364,52 +387,48 @@ class CreateSaleView(LoginRequiredMixin, CreateView):
 # Generate PDF Report
 @allowed_users(allowed_roles=['admin'])
 def generate_pdf(request):
-    # Create a HttpResponse object with the appropriate PDF headers
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
+    # Get start and end dates from request (adjust to match your form/query structure)
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
 
-    # Create a SimpleDocTemplate for easier layout management
-    doc = SimpleDocTemplate(response, pagesize=letter)
+    # Convert the date strings to datetime objects if provided
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d') if start_date_str else None
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d') if end_date_str else None
 
-    # Define the table data, including headers
-    sales_data = Sale.objects.all().select_related('salesperson').values(
-        'product__product_name',
-        'quantity_sold',
-        'total_price',
-        'date_sold',
-        'salesperson__username'  # Access the username of the salesperson
-    )
+    # Filter sales data by date if both start and end dates are provided
+    sales_data = Sale.objects.all().select_related('salesperson')
+    if start_date and end_date:
+        sales_data = sales_data.filter(date_sold__range=(start_date, end_date))
 
-    table_data = [['Product', 'Quantity Sold', 'Total Price (Cedis)', 'Date Sold | Time Sold', 'Sales Person']]  # Table headers
-
-    # Populate the table with sales data
-    for sale in sales_data:
+    # Create the table data with headers
+    table_data = [['Product', 'Quantity Sold', 'Total Price (Cedis)', 'Date Sold | Time Sold', 'Sales Person']]
+    for sale in sales_data.values('product__product_name', 'quantity_sold', 'total_price', 'date_sold', 'salesperson__username'):
         table_data.append([
             sale['product__product_name'],
             sale['quantity_sold'],
-            f"{sale['total_price']:.2f}",  # Format the total price with 2 decimals
-            sale['date_sold'].strftime("%Y-%m-%d %H:%M") if sale['date_sold'] else 'N/A',  # Format the date
-            sale['salesperson__username'] if sale['salesperson__username'] else 'N/A'  # Access the username
+            f"{sale['total_price']:.2f}",
+            sale['date_sold'].strftime("%Y-%m-%d %H:%M") if sale['date_sold'] else 'N/A',
+            sale['salesperson__username'] if sale['salesperson__username'] else 'N/A'
         ])
 
-    # Create the Table object
-    table = Table(table_data)
+    # Set up the PDF response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
+    doc = SimpleDocTemplate(response, pagesize=letter)
 
-    # Add some table styling
+    # Create and style the table
+    table = Table(table_data)
     table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.black),  # Header row background
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header row text color
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center-align text horizontally
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Center-align text vertically
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Padding for headers
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Background for data rows
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid for the table
-        ('ALIGN', (0, 1), (-1, -1), 'CENTER'),  # Ensure all data cells are center-aligned
-        ('FONTNAME', (0, 0), (-1, -1), 'Courier'),  # Header font bold
+        ('BACKGROUND', (0, 0), (-1, 0), colors.black),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 0), (-1, -1), 'Courier'),
     ]))
 
-    # Build the document
+    # Build and return the PDF document
     doc.build([table])
-
     return response
 

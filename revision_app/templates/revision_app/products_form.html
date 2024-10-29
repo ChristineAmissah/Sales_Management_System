@@ -1,7 +1,38 @@
-<h3>Add</h3>
-<a href="{% url 'dashboard' %}">Go back</a>
-<form action="" method="post">
-    {% csrf_token %}
-    {{form.as_p}}
-    <input type="submit" value="Submit">
-</form>
+{% load static %}
+<head><link rel="stylesheet" href="{% static 'css/bootstrap.css'  %}"></head>
+<body style="background-image: url('{% static 'img/pexels-apasaric-3423860.jpg' %}'); background-size: cover; background-position: center; min-height: 100vh;">
+
+
+<h1 class="py-1 px-3 text-center d-flex justify-content-between align-items-center" style="background-color: rgba(39, 41, 35, 0.5);"><span><a href="{% url 'dashboard' %}" class="btn bg-danger fw-bold fs-3 px-3 pt-0" style="height: 50px; justify-content: center;">&#8592;</a></span> <span class="text-dark">{{ form.instance.pk|yesno:"Edit Product,Add Product" }}</span> <span></span></h1>
+
+<div class="container">
+    <div class="d-flex flex-column align-items-center" style="min-height: 80vh; justify-content: center;">
+        <div class="form-box p-4" style="background-color: #6e5f4a; border-radius: 10px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%;">
+    <!-- {{form.as_p}} -->
+
+    <form method="post">
+         {% csrf_token %} 
+    
+        <label for="Product name" class="form-label fw-bold text-dark fs-5">Product name:</label><br>
+        <input type="text" name="product_name" placeholder="Eg; Rice" maxlength="200" required="" id="id_product_name" class="form-control-lg w-100" style="margin-bottom: 30px;" value="{{ form.product_name.value }}">
+        <label for="Price" class="form-label fw-bold text-dark fs-5">Price:</label><br>
+        <input type="number" name="price" step="0.01" placeholder="GHS 00.00" required="" id="id_price" class="form-control-lg w-100" style="margin-bottom: 30px;" value="{{ form.price.value }}">
+        <label for="Stock" class="form-label fw-bold text-dark fs-5">Stock:</label><br>
+        <input type="number" name="stock" placeholder="0" min="0" max="9223372036854775807" required="" id="id_stock" class="form-control-lg w-100" style="margin-bottom: 30px;" value="{{ form.stock.value }}">
+        <input type="submit" value="{{ form.instance.pk|yesno:"Save Changes,Add Product" }}" id="Login" class="btn btn-primary w-100 btn-lg"  style="background-color: #1f2020; border: none;">
+        </div>
+    </form>
+</div>
+</div>
+
+<style>
+    .form-control-lg {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.form-control-lg:focus {
+    border-color: #151d1d;
+    box-shadow: 0 0 10px rgb(42, 43, 44);
+    outline: #6e5f4a;
+}
+</style>
+</body>

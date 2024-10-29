@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block content %}
+{% include 'revision_app/pageloader.html' %}
 <body style="background-image: url('{% static 'img/pexels-tirachard-kumtanom-112571-733856.jpg' %}'); background-size: cover; background-position: center; min-height:100vh;">
 
 <div class="container-fluid my-0 position-relative mx-0 px-0" style="padding-top: 56px; z-index: 1;">
@@ -74,7 +75,9 @@
         </tr>
         {% endfor %}
     </tbody>
+    
 </table>
+
 </div></div>
 </div>
 {% endblock %}

@@ -1,4 +1,6 @@
 {% load static %}
+{% block content %}
+{% include 'revision_app/pageloader.html' %}
 <head><link rel="stylesheet" href="{% static 'css/bootstrap.css'  %}"></head>
 <body style="background-image: url('{% static 'img/pexels-apasaric-3423860.jpg' %}'); background-size: cover; background-position: center; min-height: 100vh;">
 
@@ -37,3 +39,4 @@
 }
 </style>
 </body>
+{% endblock %}

@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block content %}
+{% include 'revision_app/pageloader.html' %}
 <body style="background-image: url('{% static 'img/pexels-tirachard-kumtanom-112571-733856.jpg' %}'); background-size: cover; background-position: center; min-height: 100vh;">
 
 <div class="container-fluid my-0 position-relative mx-0 px-0" style="padding-top: 56px; z-index: 1;">
@@ -57,25 +58,6 @@
         {% endfor %}
     </tbody>
 </table>
-
-<!-- Pagination Controls -->
-<div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-    </span>
-</div>
 </div>
 </div>
 </div>

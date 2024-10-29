@@ -14,7 +14,7 @@ from django.contrib.auth import logout
 from django.db.models import Sum, F, Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import SalesForm, ProductForm
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.pagesizes import letter
@@ -217,13 +217,22 @@ class UserListView(LoginRequiredMixin, TemplateView):
                     Q(first_name__icontains=search_input) |
                     Q(last_name__icontains=search_input)
                 )
-        
-        # Update context with filtered querysets
+            
+    # Update context with filtered querysets
 
         context['search_input'] = search_input
-
         context['users'] = users
         return context
+    
+def index(request):
+    users = User.objects.all()
+    paginator = Paginator(users, 2) # 6 employees per page
+    page = request.GET.get('page')
+    puser = paginator.get_page(page)
+    
+    return render(request, 'revision_app/user.html', {'puser': puser})
+        
+        
 
 
 @allowed_users(allowed_roles=['admin'])

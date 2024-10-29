@@ -338,11 +338,20 @@ class CreateSaleView(LoginRequiredMixin, CreateView):
     context_object_name = 'sales'
     template_name = 'revision_app/sales_form.html'
     success_url = reverse_lazy('sales')  # Redirect to sales page after success
-
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['sales'] = Sale.objects.all()  # Retrieve all sales records
-        return context
+            context = super().get_context_data(**kwargs)
+            context['sales'] = Sale.objects.all()  # Retrieve all sales records
+            return context
+    
+    
+    def Paginate(self, request):
+        paginator = Paginator('sales', 3)  
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return page_obj
+
+
+    
 
     def form_valid(self, form):
         try:

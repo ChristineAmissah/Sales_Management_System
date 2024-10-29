@@ -48,7 +48,7 @@
             <td>
                 <form method="post" action="{% url 'assign_group' user.id %}" class=" d-flex justify-content-center">
                     {% csrf_token %}
-                    <select name="group" class="form-select w-20" style="width: 40%; background-color: rgb(252, 255, 249);" >
+                    <select name="group" class="form-select" style="width: fit-content; background-color: rgb(252, 255, 249);" >
                         <option value="admin" {% if 'admin' in user.groups.all|stringformat:'s' %}selected{% endif %}>Admin</option>
                         <option value="sales_person" {% if 'sales_person' in user.groups.all|stringformat:'s' %}selected{% endif %}>Salesperson</option>
                     </select><span class="mx-2 fs-4"></span> 

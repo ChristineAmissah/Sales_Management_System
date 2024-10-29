@@ -1,5 +1,90 @@
-<form action="{% url 'edit_user' pk=user.id %}" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save Changes</button>
-</form>
+{% load static %}
+{% block content %}
+<head>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+</head>
+<h1 class="py-3 px-3 text-center d-flex justify-content-between align-items-center" style="background-color: rgba(39, 41, 35, 0.5);"><span><a href="{% url 'user' %}" class="btn bg-danger fw-bold fs-3 px-3 pt-0" style="height: 50px; justify-content: center;">&#8592;</a></span> 
+    <span class="text-white">Edit User</span> <span></span></h1>
+<body style="background-image: url('{% static 'img/pexels-rdne-5699177.jpg' %}'); background-size: cover; background-position: center; min-height: 100vh;">
+
+    <div class="container">
+        <div class="d-flex flex-column align-items-center" style="min-height: 80vh; justify-content: center;">
+            <div class="form-box p-5" >
+        {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">{{message}}</div>
+        {% endfor %}
+        {% endif %} 
+     
+    
+        <form action="{% url 'edit_user' pk=user.id %}" method="post">
+            {% csrf_token %}
+                <label for="id_username" class="text-dark fs-6 fw-bold mb-0">Username:</label>
+                <input class="form-control my-2" type="text" name="username" value="{{ form.username.value }}" maxlength="150" required aria-describedby="id_username_helptext" id="id_username">
+                
+                <div class="form-text mb-1" id="id_username_helptext">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
+            
+                <label for="id_email" class="text-dark fs-6 fw-bold mb-2">Email address:</label>
+                <input type="email" class="form-control" name="email" value="{{ form.email.value }}" maxlength="254" id="id_email">
+                
+                <label for="id_first_name" class="text-dark fs-6 fw-bold my-2">First name:</label>
+                <input type="text" class="form-control" name="{{ form.first_name.value }}" maxlength="150" id="id_first_name">
+                
+
+                <label for="id_last_name" class="text-dark fs-6 fw-bold my-2">Last name:</label>
+                <input type="text" class="form-control" name="{{ form.last_name.value }}" maxlength="150" id="id_last_name">
+
+                <div class="d-flex flex-row mt-2">
+                <label for="id_is_staff" class="text-dark fs-6 fw-bold">Staff status:</label>
+                <input class="form-check" type="checkbox" name="is_staff" id="id_is_staff" {{ form.is_staff.value|yesno:"checked," }}>        
+                </div>
+                <div class="form-text" id="id_is_staff_helptext">Designates whether the user can log into this admin site.</div>
+                
+                
+                
+                
+            </p>
+            <button type="submit" class="btn btn-danger text-white w-100 btn"  style="background-color: #1f2020; border: none;">Save Changes</button>
+        </form>
+    </div>
+</div>
+</div>
+<style>
+    .form-control {
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #151d1d;
+        box-shadow: 0 0 10px rgb(42, 43, 44);
+        outline: none;
+    }
+    
+    .form-box {
+        width: 60%;            /* Set width to 80% of the viewport */
+        max-width: 500px;      /* Maximum width it should expand to */
+        background-color: #6e5f4a;
+        border-radius: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-check:focus {
+    border-color: #394d14;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(201, 204, 7, 0.2);
+    
+    }
+
+    .form-check-input:checked {
+    background-color: #080e18;
+    border-color: #212731;
+    }
+    
+    .form-check{
+        margin-left: 10px;
+        accent-color: rgb(17, 3, 6);
+        border-radius: 0.25em;
+        width: 0.85em;
+        height: 0.85em;
+    }
+    </style>
+{% endblock content %}

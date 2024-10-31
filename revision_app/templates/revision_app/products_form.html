@@ -20,7 +20,7 @@
         <input type="text" name="product_name" placeholder="Eg; Rice" maxlength="200" required="" id="id_product_name" class="form-control-lg w-100" style="margin-bottom: 30px;" value="{{ form.product_name.value }}">
         <label for="Price" class="form-label fw-bold text-dark fs-5">Price:</label><br>
         <input type="number" name="price" step="0.01" placeholder="GHS 00.00" required="" id="id_price" class="form-control-lg w-100" style="margin-bottom: 30px;" value="{{ form.price.value }}">
-        <label for="Stock" class="form-label fw-bold text-dark fs-5">Stock:</label><br>
+        <label for="Stock" class="form-label fw-bold text-dark fs-5">Quantity:</label><br>
         <input type="number" name="stock" placeholder="0" min="0" max="9223372036854775807" required="" id="id_stock" class="form-control-lg w-100" style="margin-bottom: 30px;" value="{{ form.stock.value }}">
         <input type="submit" value="{{ form.instance.pk|yesno:"Save Changes,Add Product" }}" id="Login" class="btn btn-primary w-100 btn-lg"  style="background-color: #1f2020; border: none;">
         </div>

@@ -7,43 +7,34 @@
     <title>Sales Management System</title>
     <link rel="stylesheet" href="{% static 'css/bootstrap.css'  %}">
 </head>
-<body class="overflow-x-hidden">
+<!-- Overflow -->
+<body class="">
         <div class="container-fluid p-6">
         <div class="row">
           <!-- Side Bar -->
             <div class="col-1 px-0" >
                 <div class=" text-start d-flex flex-column justify-content-between flex-shrink-0 p-3 text-white position-fixed" style="height: 100vh; width: 8.33333333%; background-color: rgba(130, 152, 161, 0.5);">
         <hr>
-        <ul class="nav flex-column mb-auto" style="padding-top: 20px;">
-          <li class="nav-item">
-            <li>
-              {% if request.user.groups.exists %}
+        
+        <ul class="nav flex-column mb-auto nav-pills" style="padding-top: 20px;">
+          {% if request.user.groups.exists %}
             {% if request.user.groups.all.0.name == "admin" %}
-              <a href="{% url 'dashboard' %}" class="nav-link text-white">
-                Dashboard
-                {% endif %}
-                {% endif %}
-              </a>
-            </li>
-          <li>
-            {% if request.user.groups.exists %}
-            {% if request.user.groups.all.0.name == "admin" %}
-                <a href="{% url 'view-sales' %}" class="nav-link text-light">
-              Sales    
+              <li class="nav-item">
+                <a href="{% url 'dashboard' %}" class="nav-link my-1 {% if request.path == '/' %}active{% endif %} text-white">Dashboard
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'view-sales' %}" class="nav-link my-1 {% if request.path == '/view-sales/' %}active{% endif %} text-light">
+                  Sales
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'user' %}" class="nav-link my-1 {% if request.path == '/user/' %}active{% endif %} text-white">
+                  Users
+                </a>
+              </li>
             {% endif %}
-            {% endif %}
-              
-            </a>
-          </li>
-          <li>
-            {% if request.user.groups.exists %}
-            {% if request.user.groups.all.0.name == "admin" %}
-            <a href="{% url 'user' %}" class="nav-link text-white">
-              Users
-            {% endif %}
-            {% endif %}
-            </a>
-          </li>
+          {% endif %}
         </ul>
         <hr>
         <div class="dropdown">
@@ -101,6 +92,29 @@
 </div>    
 </div>
 <script src="{% static 'js/bootstrap.bundle.min.js'  %}"></script>
+<style>
+   
+  .nav-pills .nav-link {
+     color: white; /* Text color */
+       }
+        
+        .nav-pills .nav-link.active {
+            background-color: rgba(82, 71, 71, 0.979);
+            color: white; /* Active text color */
+        }
+        .nav-pills .nav-link:hover {
+            background-color: rgb(68, 46, 46); /* Change to your desired hover color */
+            color: white; /* Hover text color */
+        }
+
+    .dropdown-menu .dropdown-item.active,
+    .dropdown-menu .dropdown-item:active {
+    background-color: rgba(82, 71, 71, 0.979) !important;
+    color: white !important; /* Optional: ensure text color contrasts */
+}
+      
+
+</style>
 </div>
 </body>
 </html>

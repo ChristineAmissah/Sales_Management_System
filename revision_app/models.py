@@ -13,11 +13,13 @@ class Products(models.Model):
         unique=True
     )
 
+    # the unique key, first and the last letter lowercase
     def save(self, *args, **kwargs):
         if self.product_name:
             self.unique_key = f"{self.product_name[0].lower()}{self.product_name[-1].lower()}"
         super().save(*args, **kwargs)
 
+    # this shows the name of the product_name
     def __str__(self):
         return self.product_name
 

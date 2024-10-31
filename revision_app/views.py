@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 import logging
+from django.views.generic.list import MultipleObjectMixin
 from django.contrib.auth.models import User, Group
 from django.views.decorators.http import require_POST
 from django.utils import timezone
@@ -13,7 +14,7 @@ from .models import Products,  Sale
 from django.contrib.auth import logout
 from django.db.models import Sum, F, Q
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import SalesForm, ProductForm
 from reportlab.lib.pagesizes import letter
@@ -87,6 +88,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         sales = Sale.objects.all()
         users = User.objects.all()
         user_groups = {}
+
+         # Default pagination
+        paginate_by = self.request.GET.get('paginate_by', 10)
         
         # Basic statistics
         context['total_products'] = products.exclude(stock=0).count()
@@ -137,67 +141,29 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                     Q(quantity_sold__icontains=search_input)
                 )
         
-        # Update context with filtered querysets
+        # Pagination
+        paginator = Paginator(products, int(paginate_by))
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+
+        context['page_obj'] = page_obj
+        context['object_list'] = page_obj.object_list 
         context['products'] = products
         context['sales'] = sales
         context['search_input'] = search_input
         context['users'] = users
-        
         return context
 
-class SalesListView(LoginRequiredMixin, TemplateView):
-    template_name = 'revision_app/sales.html'  # Template where products and sales will be displayed
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        sales = Sale.objects.all()
-        products = Products.objects.all()
-
-        search_input = self.request.GET.get('q', '').strip()
-        
-        if search_input:
-            # Try parsing the date with multiple formats
-            search_date = None
-            date_formats = ['%Y-%m-%d', '%d-%m-%Y', '%Y/%m/%d', '%d/%m/%Y']
-            
-            for date_format in date_formats:
-                try:
-                    search_date = datetime.strptime(search_input, date_format).date()
-                    break
-                except ValueError:
-                    continue
-            
-            if search_date:
-                # Filter sales by date using a date range to capture all entries for that day
-                sales = sales.filter(
-                    date_sold__date=search_date
-                )
-            else:
-                # If not a date, filter by other fields
-                products = products.filter(
-                    Q(product_name__icontains=search_input) |
-                    Q(stock__icontains=search_input) |
-                    Q(price__icontains=search_input) |
-                    Q(unique_key__icontains=search_input)
-                )
-                
-                sales = sales.filter(
-                    Q(product__product_name__icontains=search_input) |
-                    Q(salesperson__username__icontains=search_input) |
-                    Q(unique_key__icontains=search_input) |
-                    Q(total_price__icontains=search_input) |
-                    Q(quantity_sold__icontains=search_input)
-                )
-
-        context['products'] = products
-        context['sales'] = sales
-        return context
         
 class UserListView(LoginRequiredMixin, TemplateView):
     template_name = 'revision_app/user.html'  # Template where products and sales will be displayed
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Default pagination
+        paginate_by = self.request.GET.get('paginate_by', 10)
         users = User.objects.all()
         user_groups = {}
 
@@ -219,20 +185,76 @@ class UserListView(LoginRequiredMixin, TemplateView):
                 )
             
     # Update context with filtered querysets
+        # Pagination
+        paginator = Paginator(users, int(paginate_by))
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
 
+        context['page_obj'] = page_obj
+        context['object_list'] = page_obj.object_list 
         context['search_input'] = search_input
         context['users'] = users
         return context
+
+class SalesListView(LoginRequiredMixin, TemplateView):
+    template_name = 'revision_app/sales.html'
     
-def index(request):
-    users = User.objects.all()
-    paginator = Paginator(users, 2) # 6 employees per page
-    page = request.GET.get('page')
-    puser = paginator.get_page(page)
-    
-    return render(request, 'revision_app/user.html', {'puser': puser})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Default pagination
+        paginate_by = self.request.GET.get('paginate_by', 10)
+        # Get the initial sales queryset
+        sales = Sale.objects.all()
+        products = Products.objects.all()
         
+       
+        # Search functionality
+        search_input = self.request.GET.get('q', '').strip()
         
+        if search_input:
+            search_date = None
+            date_formats = ['%Y-%m-%d', '%d-%m-%Y', '%Y/%m/%d', '%d/%m/%Y']
+            
+            for date_format in date_formats:
+                try:
+                    search_date = datetime.strptime(search_input, date_format).date()
+                    break
+                except ValueError:
+                    continue
+            
+            if search_date:
+                sales = sales.filter(date_sold__date=search_date)
+            else:
+                products = products.filter(
+                    Q(product_name__icontains=search_input) |
+                    Q(stock__icontains=search_input) |
+                    Q(price__icontains=search_input) |
+                    Q(unique_key__icontains=search_input)
+                )
+                
+                sales = sales.filter(
+                    Q(product__product_name__icontains=search_input) |
+                    Q(salesperson__username__icontains=search_input) |
+                    Q(unique_key__icontains=search_input) |
+                    Q(total_price__icontains=search_input) |
+                    Q(quantity_sold__icontains=search_input)
+                )
+         # Pagination
+        paginator = Paginator(sales, int(paginate_by))
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+
+        context['page_obj'] = page_obj
+        context['object_list'] = page_obj.object_list 
+        context['products'] = products
+        context['sales'] = sales
+        context['paginate_by'] = paginate_by
+        context['search_input'] = search_input
+        return context
+
 
 
 @allowed_users(allowed_roles=['admin'])

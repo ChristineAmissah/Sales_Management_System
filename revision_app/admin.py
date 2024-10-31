@@ -17,14 +17,16 @@ class ProductsAdmin(admin.ModelAdmin):
 
 class SaleAdmin(admin.ModelAdmin):
     list_display = ('unique_key', 'product', 'quantity_sold', 'total_price', 'date_sold')
+    # list_per_page = 4
+    # list_max_show_all = 10
     readonly_fields = ('unique_key', 'total_price')
     search_fields = ('product__product_name', 'unique_key')
-    list_filter = ('date_sold',)  # Filter by sale date
-    ordering = ('-date_sold',)  # Order by most recent sale
+    list_filter = ('date_sold',)  
+    ordering = ('-date_sold',)  
     search_fields = (
-        'product__product_name',  # Search by product name
-        'unique_key',             # Search by unique key
-        'salesperson__username',   # Search by salesperson's username (or the appropriate field)
+        'product__product_name',  
+        'unique_key',             
+        'salesperson__username',  
         'total_price',
         'quantity_sold',
         'date_sold'

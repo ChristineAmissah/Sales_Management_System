@@ -84,7 +84,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         
         # Base querysets
-        products = Products.objects.all()
+        products = Products.objects.all().order_by('-product_name')
         sales = Sale.objects.all()
         users = User.objects.all()
         user_groups = {}
@@ -206,7 +206,8 @@ class SalesListView(LoginRequiredMixin, TemplateView):
         # Default pagination
         paginate_by = self.request.GET.get('paginate_by', 10)
         # Get the initial sales queryset
-        sales = Sale.objects.all()
+        sales = Sale.objects.all().order_by('-date_sold')
+
         products = Products.objects.all()
         
        

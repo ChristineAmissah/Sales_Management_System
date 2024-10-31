@@ -17,8 +17,8 @@ class ProductsAdmin(admin.ModelAdmin):
 
 class SaleAdmin(admin.ModelAdmin):
     list_display = ('unique_key', 'product', 'quantity_sold', 'total_price', 'date_sold')
-    # list_per_page = 4
-    # list_max_show_all = 10
+    list_per_page = 10
+    list_max_show_all = 10
     readonly_fields = ('unique_key', 'total_price')
     search_fields = ('product__product_name', 'unique_key')
     list_filter = ('date_sold',)  

@@ -71,6 +71,10 @@ class CustomLoginView(LoginView):
         else:
             return reverse_lazy('sales')
     
+    def form_invalid(self, form):
+        messages.error(self.request, "Incorrect username or password. Please try again.")
+        return super().form_invalid(form)
+    
 def logout_view(request):
     logout(request)
     return redirect('login')

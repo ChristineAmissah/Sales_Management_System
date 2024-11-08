@@ -69,6 +69,13 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'password1', 'password2')
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'placeholder': 'Username'})
+        self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
+        self.fields['password2'].widget.attrs.update({'placeholder': 'Password confirmation'})
+
 
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')

@@ -6,10 +6,10 @@ from django.shortcuts import redirect
 # allows us to dd additional functionalities before the original function is called
 def unauthenicated_user(view_func):
     def wrapper_func(request, *args, **kwargs):
-        if request.user.is_authenticated:
+        if request.user.is_authenticated:  
             return redirect('dashboard')
         else:
-            return view_func(request, *args, **kwargs)
+            return redirect('login')
     return wrapper_func
 
 def allowed_users(allowed_roles=[]):

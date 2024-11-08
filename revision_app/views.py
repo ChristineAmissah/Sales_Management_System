@@ -57,8 +57,6 @@ class RegisterPage(FormView):
         """Ensure admins are always redirected to the dashboard after registration."""
         return reverse_lazy('register')
 
-
-@method_decorator(unauthenicated_user, name='dispatch')
 class CustomLoginView(LoginView):
     template_name = 'revision_app/login.html'
     fields = '__all__'
@@ -79,7 +77,7 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-
+@method_decorator(unauthenicated_user, name='dispatch')
 @method_decorator(admin_only, name='dispatch')
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'revision_app/admin.html'  # Template where products and sales will be displayed
